@@ -59,7 +59,10 @@
 	var circle = document.querySelector('#circle');
 
 	_index2.default.setGlobalFPS(60);
-	_index2.default.render('Alireza', function (frame) {
+	_index2.default.onLag(function (fps) {
+	    return console.log('LAGGED WITH ' + fps + 'fps speed');
+	});
+	_index2.default.render('myclass', function (frame) {
 	    var W = window.innerWidth,
 	        H = window.innerHeight;
 	    circle.style.left = W / 2 + Math.sin(frame.index / 100) * W / 3 + "px";
@@ -100,7 +103,7 @@
 
 
 	// module
-	exports.push([module.id, "blockquote {\n    font-family: Arial;\n    font-size: 90px;\n    font-weight: bold;\n    text-transform: uppercase\n}\n#circle {\n    background: blue;\n    top: 50%;\n    position: absolute;\n    left: 100px;\n    border-radius: 50%;\n    width: 100px;\n    height: 100px;\n    transform: translate(-50%, -50%)\n}", ""]);
+	exports.push([module.id, "blockquote {\n    font-family: Arial;\n    font-size: 90px;\n    font-weight: bold;\n    text-transform: uppercase\n}\n#circle {\n    background: blue;\n    top: 50%;\n    position: absolute;\n    left: 100px;\n    border-radius: 50%;\n    width: 100px;\n    height: 100px;\n    transform: translate3d(-50%, -50%, -1px)\n}", ""]);
 
 	// exports
 
@@ -473,7 +476,13 @@
 
 	        this.frames = 0;
 	        this.fps = 30;
+	        this.performanceFPS = 30;
 	        this.renderers = [];
+	        this.performance = {
+	            logs: new ArrayBuffer(100),
+	            logsPointer: 0,
+	            lastTimeStamp: undefined
+	        };
 	        this.requestLoop();
 	    }
 
@@ -601,6 +610,17 @@
 	            return renderer;
 	        }
 	    }, {
+	        key: 'onLag',
+	        value: function onLag(callback) {
+	            this.onLagCallback = callback;
+	        }
+	    }, {
+	        key: 'registerPerformanceLog',
+	        value: function registerPerformanceLog(renderTime) {
+	            this.performanceFPS = 1000 / renderTime;
+	            if (this.performanceFPS < 30) this.onLagCallback(this.performanceFPS);
+	        }
+	    }, {
 	        key: 'requestLoop',
 	        value: function requestLoop() {
 	            requestAnimFrame(this.requestLoop.bind(this));
@@ -628,6 +648,9 @@
 	                    }
 	                }
 	            }
+
+	            if (this.performance.lastTimeStamp !== undefined) this.registerPerformanceLog(Date.now() - this.performance.lastTimeStamp);
+	            this.performance.lastTimeStamp = Date.now();
 	        }
 	    }]);
 

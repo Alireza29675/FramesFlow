@@ -15,7 +15,13 @@ class FramesFlow {
     constructor () {
         this.frames = 0
         this.fps = 30
+        this.performanceFPS = 30
         this.renderers = []
+        this.performance = {
+            logs: new ArrayBuffer(100),
+            logsPointer: 0,
+            lastTimeStamp: undefined
+        }
         this.requestLoop()
     }
     getAllRenderers () { return this.renderers.filter(renderer => renderer instanceof Renderer) }
@@ -61,10 +67,19 @@ class FramesFlow {
         this.renderers.push(renderer)
         return renderer
     }
+    onLag (callback) {
+        this.onLagCallback = callback
+    }
+    registerPerformanceLog (renderTime) {
+        this.performanceFPS = 1000 / renderTime
+        if (this.performanceFPS < 30) this.onLagCallback(this.performanceFPS)
+    }
     requestLoop () {
         requestAnimFrame(this.requestLoop.bind(this))
         this.frames++
         for (let renderer of this.getAllRenderers()) renderer.render()
+        if (this.performance.lastTimeStamp !== undefined) this.registerPerformanceLog(Date.now() - this.performance.lastTimeStamp)
+        this.performance.lastTimeStamp = Date.now()
     }
 }
 
