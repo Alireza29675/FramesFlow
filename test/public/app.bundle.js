@@ -54,6 +54,13 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+	var circle = document.querySelector('#circle');
+
+	_index2.default.setGlobalFPS(60);
+	window.a = _index2.default.render(function (frame) {
+	    circle.style.left = 100 + frame.index * 5 + "px";
+	}).setFPS(15);
+
 /***/ },
 /* 1 */
 /***/ function(module, exports, __webpack_require__) {
@@ -89,7 +96,7 @@
 
 
 	// module
-	exports.push([module.id, "blockquote {\n    font-family: Arial;\n    font-size: 90px;\n    font-weight: bold;\n    text-transform: uppercase\n}", ""]);
+	exports.push([module.id, "blockquote {\n    font-family: Arial;\n    font-size: 90px;\n    font-weight: bold;\n    text-transform: uppercase\n}\n#circle {\n    background: blue;\n    top: 50%;\n    position: absolute;\n    left: 100px;\n    border-radius: 50%;\n    width: 100px;\n    height: 100px;\n    transform: translate(-50%, -50%)\n}", ""]);
 
 	// exports
 
@@ -404,9 +411,238 @@
 
 /***/ },
 /* 5 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _FramesFlow = __webpack_require__(7);
+
+	var _FramesFlow2 = _interopRequireDefault(_FramesFlow);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	// defining framesFlow as a global object
+	if (!(window.framesFlow instanceof _FramesFlow2.default)) {
+	    // if it didn't define before
+	    window.framesFlow = new _FramesFlow2.default();
+	}
+
+	// export
+	exports.default = window.framesFlow;
+
+/***/ },
+/* 6 */
 /***/ function(module, exports) {
 
 	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	var Renderer = function () {
+	    function Renderer(framesFlow, func) {
+	        _classCallCheck(this, Renderer);
+
+	        this.props = {
+	            isDebuging: false
+	        };
+	        this.framesFlow = framesFlow;
+	        this.fps = undefined;
+	        this.func = func;
+	        this.frames = 0;
+	    }
+
+	    _createClass(Renderer, [{
+	        key: "getFPS",
+	        value: function getFPS() {
+	            return this.fps || this.framesFlow.getGlobalFPS();
+	        }
+	    }, {
+	        key: "setFPS",
+	        value: function setFPS(rate) {
+	            try {
+	                this.framesFlow._checkValidationOfFrameRate(rate);
+	                this.fps = rate;
+	            } catch (e) {
+	                console.error(e);
+	            }
+	            return this;
+	        }
+	    }, {
+	        key: "unsetFPS",
+	        value: function unsetFPS() {
+	            this.fps = undefined;
+	        }
+	    }, {
+	        key: "shouldRenderThisFrame",
+	        value: function shouldRenderThisFrame() {
+	            // all conditions to pause or play rendering
+	            var conditions = [!this.props.isDebuging, this.framesFlow.frames % (30 / Math.min(this.getFPS(), 30)) == 0];
+	            var ret = true;
+	            var _iteratorNormalCompletion = true;
+	            var _didIteratorError = false;
+	            var _iteratorError = undefined;
+
+	            try {
+	                for (var _iterator = conditions[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                    var cond = _step.value;
+	                    ret = ret && cond;
+	                }
+	            } catch (err) {
+	                _didIteratorError = true;
+	                _iteratorError = err;
+	            } finally {
+	                try {
+	                    if (!_iteratorNormalCompletion && _iterator.return) {
+	                        _iterator.return();
+	                    }
+	                } finally {
+	                    if (_didIteratorError) {
+	                        throw _iteratorError;
+	                    }
+	                }
+	            }
+
+	            return ret;
+	        }
+	    }, {
+	        key: "getFrameObjectToReturn",
+	        value: function getFrameObjectToReturn() {
+	            return {
+	                index: this.frames
+	            };
+	        }
+	    }, {
+	        key: "render",
+	        value: function render() {
+	            if (this.shouldRenderThisFrame()) for (var i = 0; i < Math.max(this.getFPS(), 30) / 30; i++) {
+	                this.frames++;
+	                this.func(this.getFrameObjectToReturn());
+	            }
+	        }
+	    }]);
+
+	    return Renderer;
+	}();
+
+	exports.default = Renderer;
+
+/***/ },
+/* 7 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _Renderer = __webpack_require__(6);
+
+	var _Renderer2 = _interopRequireDefault(_Renderer);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	// Compatibility for all browsers - Paul Irish version
+	window.requestAnimFrame = function () {
+	    return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || function (callback) {
+	        window.setTimeout(callback, 1000 / 60);
+	    };
+	}();
+
+	// FramesFlow
+
+	var FramesFlow = function () {
+	    function FramesFlow() {
+	        _classCallCheck(this, FramesFlow);
+
+	        this.frames = 0;
+	        this.fps = 30;
+	        this.renderers = [];
+	        this.requestRenderFrame();
+	    }
+
+	    _createClass(FramesFlow, [{
+	        key: '_checkValidationOfFrameRate',
+	        value: function _checkValidationOfFrameRate(rate) {
+	            var isGlobalCheck = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+	            var error = null;
+	            var pointer = isGlobalCheck ? 'any' : 'this';
+	            if (rate < 0) error = 'FPS must not be a negative number!';else if (rate < 30 && rate > 0 && 30 / rate % 1 !== 0) error = 'if FPS is less than 30fps, it have to be like this: (30 / FPS) should be integer';else if (rate > 30 && rate % 30 !== 0) error = 'if FPS is more than 30fps, it have to be like this: (FPS % 30 == 0)';
+	            if (error !== null) throw 'can\'t set ' + rate + 'fps for this renderer. REASON: <' + error + '>';
+	        }
+	    }, {
+	        key: 'getGlobalFPS',
+	        value: function getGlobalFPS() {
+	            return this.fps;
+	        }
+	    }, {
+	        key: 'setGlobalFPS',
+	        value: function setGlobalFPS(rate) {
+	            try {
+	                this._checkValidationOfFrameRate(rate, true);
+	                this.fps = rate;
+	            } catch (e) {
+	                console.error(e);
+	            }
+	            return this;
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render(func) {
+	            var renderer = new _Renderer2.default(this, func);
+	            this.renderers.push(renderer);
+	            return renderer;
+	        }
+	    }, {
+	        key: 'requestRenderFrame',
+	        value: function requestRenderFrame() {
+	            requestAnimFrame(this.requestRenderFrame.bind(this));
+	            this.frames++;
+	            var _iteratorNormalCompletion = true;
+	            var _didIteratorError = false;
+	            var _iteratorError = undefined;
+
+	            try {
+	                for (var _iterator = this.renderers[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                    var renderer = _step.value;
+	                    renderer.render();
+	                }
+	            } catch (err) {
+	                _didIteratorError = true;
+	                _iteratorError = err;
+	            } finally {
+	                try {
+	                    if (!_iteratorNormalCompletion && _iterator.return) {
+	                        _iterator.return();
+	                    }
+	                } finally {
+	                    if (_didIteratorError) {
+	                        throw _iteratorError;
+	                    }
+	                }
+	            }
+	        }
+	    }]);
+
+	    return FramesFlow;
+	}();
+
+	exports.default = FramesFlow;
 
 /***/ }
 /******/ ]);
