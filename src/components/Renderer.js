@@ -1,5 +1,7 @@
 class Renderer {
-    constructor (framesFlow, func) {
+    constructor (framesFlow, options, func) {
+        this.id = options.id
+        this.class = options.class || ''
         this.props = {
             isDebuging: false
         }
@@ -7,13 +9,27 @@ class Renderer {
         this.fps = undefined
         this.func = func
         this.frames = 0
+        this.shouldGoNext = false
+    }
+    // Render next frame
+    next () {
+        this.shouldGoNext = true
+    }
+    remove () {
+        this.framesFlow.removeRendererById(this.id)
+    }
+    pause () {
+        this.props.isDebuging = true
+    }
+    play () {
+        this.props.isDebuging = false
     }
     getFPS () {
         return this.fps || this.framesFlow.getGlobalFPS()
     }
     setFPS (rate) {
         try {
-            this.framesFlow._checkValidationOfFrameRate(rate)
+            this.framesFlow.checkValidationOfFrameRate(rate)
             this.fps = rate
         } catch (e) {
             console.error(e)
@@ -35,12 +51,15 @@ class Renderer {
     }
     getFrameObjectToReturn () {
         return {
-            index: this.frames
+            renderer: this,
+            index: this.frames,
+            fps: this.fps
         }
     }
     render () {
-        if (this.shouldRenderThisFrame()) for (let i = 0; i < Math.max(this.getFPS(), 30) / 30; i++) {
+        if (this.shouldRenderThisFrame() || this.shouldGoNext) for (let i = 0; i < Math.max(this.getFPS(), 30) / 30; i++) {
             this.frames++
+            this.shouldGoNext = false
             this.func(this.getFrameObjectToReturn())
         }
     }

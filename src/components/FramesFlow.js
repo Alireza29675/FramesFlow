@@ -16,9 +16,14 @@ class FramesFlow {
         this.frames = 0
         this.fps = 30
         this.renderers = []
-        this.requestRenderFrame()
+        this.requestLoop()
     }
-    _checkValidationOfFrameRate (rate, isGlobalCheck = false) {
+    getAllRenderers () { return this.renderers.filter(renderer => renderer instanceof Renderer) }
+    get (id) { return this.getById(id) }
+    getById (id) { return this.renderers[id] }
+    getAllByClass (className) { return this.getAllRenderers().filter(renderer => renderer.class == className) }
+    removeRendererById (id) { this.renderers[id] = undefined }
+    checkValidationOfFrameRate (rate, isGlobalCheck = false) {
         let error = null
         const pointer = isGlobalCheck ? 'any' : 'this'
         if (rate < 0) error = 'FPS must not be a negative number!'
@@ -29,24 +34,37 @@ class FramesFlow {
     getGlobalFPS () {
         return this.fps
     }
+    playAll () {
+        for (let renderer of this.getAllRenderers()) renderer.play()
+    }
+    pauseAll () {
+        for (let renderer of this.getAllRenderers()) renderer.pause()
+    }
     setGlobalFPS (rate) {
         try {
-            this._checkValidationOfFrameRate(rate, true)
+            this.checkValidationOfFrameRate(rate, true)
             this.fps = rate
         } catch (e) {
             console.error(e)
         }
         return this
     }
-    render (func) {
-        const renderer = new Renderer(this, func)
+    render (className, func) {
+        if (typeof className == 'function') {
+            func = className
+            className = ''
+        }
+        const renderer = new Renderer(this, {
+            id: this.renderers.length,
+            class: className
+        }, func)
         this.renderers.push(renderer)
         return renderer
     }
-    requestRenderFrame () {
-        requestAnimFrame(this.requestRenderFrame.bind(this))
+    requestLoop () {
+        requestAnimFrame(this.requestLoop.bind(this))
         this.frames++
-        for (let renderer of this.renderers) renderer.render()
+        for (let renderer of this.getAllRenderers()) renderer.render()
     }
 }
 

@@ -54,12 +54,16 @@
 
 	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+	console.clear();
+
 	var circle = document.querySelector('#circle');
 
 	_index2.default.setGlobalFPS(60);
-	window.a = _index2.default.render(function (frame) {
-	    circle.style.left = 100 + frame.index * 5 + "px";
-	}).setFPS(15);
+	_index2.default.render('Alireza', function (frame) {
+	    var W = window.innerWidth,
+	        H = window.innerHeight;
+	    circle.style.left = W / 2 + Math.sin(frame.index / 100) * W / 3 + "px";
+	});
 
 /***/ },
 /* 1 */
@@ -419,7 +423,7 @@
 	    value: true
 	});
 
-	var _FramesFlow = __webpack_require__(7);
+	var _FramesFlow = __webpack_require__(6);
 
 	var _FramesFlow2 = _interopRequireDefault(_FramesFlow);
 
@@ -436,9 +440,207 @@
 
 /***/ },
 /* 6 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, "__esModule", {
+	    value: true
+	});
+
+	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
+
+	var _Renderer = __webpack_require__(7);
+
+	var _Renderer2 = _interopRequireDefault(_Renderer);
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	// Compatibility for all browsers - Paul Irish version
+	window.requestAnimFrame = function () {
+	    return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || function (callback) {
+	        window.setTimeout(callback, 1000 / 60);
+	    };
+	}();
+
+	// FramesFlow
+
+	var FramesFlow = function () {
+	    function FramesFlow() {
+	        _classCallCheck(this, FramesFlow);
+
+	        this.frames = 0;
+	        this.fps = 30;
+	        this.renderers = [];
+	        this.requestLoop();
+	    }
+
+	    _createClass(FramesFlow, [{
+	        key: 'getAllRenderers',
+	        value: function getAllRenderers() {
+	            return this.renderers.filter(function (renderer) {
+	                return renderer instanceof _Renderer2.default;
+	            });
+	        }
+	    }, {
+	        key: 'get',
+	        value: function get(id) {
+	            return this.getById(id);
+	        }
+	    }, {
+	        key: 'getById',
+	        value: function getById(id) {
+	            return this.renderers[id];
+	        }
+	    }, {
+	        key: 'getAllByClass',
+	        value: function getAllByClass(className) {
+	            return this.getAllRenderers().filter(function (renderer) {
+	                return renderer.class == className;
+	            });
+	        }
+	    }, {
+	        key: 'removeRendererById',
+	        value: function removeRendererById(id) {
+	            this.renderers[id] = undefined;
+	        }
+	    }, {
+	        key: 'checkValidationOfFrameRate',
+	        value: function checkValidationOfFrameRate(rate) {
+	            var isGlobalCheck = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+
+	            var error = null;
+	            var pointer = isGlobalCheck ? 'any' : 'this';
+	            if (rate < 0) error = 'FPS must not be a negative number!';else if (rate < 30 && rate > 0 && 30 / rate % 1 !== 0) error = 'if FPS is less than 30fps, it have to be like this: (30 / FPS) should be integer';else if (rate > 30 && rate % 30 !== 0) error = 'if FPS is more than 30fps, it have to be like this: (FPS % 30 == 0)';
+	            if (error !== null) throw 'can\'t set ' + rate + 'fps for this renderer. REASON: <' + error + '>';
+	        }
+	    }, {
+	        key: 'getGlobalFPS',
+	        value: function getGlobalFPS() {
+	            return this.fps;
+	        }
+	    }, {
+	        key: 'playAll',
+	        value: function playAll() {
+	            var _iteratorNormalCompletion = true;
+	            var _didIteratorError = false;
+	            var _iteratorError = undefined;
+
+	            try {
+	                for (var _iterator = this.getAllRenderers()[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
+	                    var renderer = _step.value;
+	                    renderer.play();
+	                }
+	            } catch (err) {
+	                _didIteratorError = true;
+	                _iteratorError = err;
+	            } finally {
+	                try {
+	                    if (!_iteratorNormalCompletion && _iterator.return) {
+	                        _iterator.return();
+	                    }
+	                } finally {
+	                    if (_didIteratorError) {
+	                        throw _iteratorError;
+	                    }
+	                }
+	            }
+	        }
+	    }, {
+	        key: 'pauseAll',
+	        value: function pauseAll() {
+	            var _iteratorNormalCompletion2 = true;
+	            var _didIteratorError2 = false;
+	            var _iteratorError2 = undefined;
+
+	            try {
+	                for (var _iterator2 = this.getAllRenderers()[Symbol.iterator](), _step2; !(_iteratorNormalCompletion2 = (_step2 = _iterator2.next()).done); _iteratorNormalCompletion2 = true) {
+	                    var renderer = _step2.value;
+	                    renderer.pause();
+	                }
+	            } catch (err) {
+	                _didIteratorError2 = true;
+	                _iteratorError2 = err;
+	            } finally {
+	                try {
+	                    if (!_iteratorNormalCompletion2 && _iterator2.return) {
+	                        _iterator2.return();
+	                    }
+	                } finally {
+	                    if (_didIteratorError2) {
+	                        throw _iteratorError2;
+	                    }
+	                }
+	            }
+	        }
+	    }, {
+	        key: 'setGlobalFPS',
+	        value: function setGlobalFPS(rate) {
+	            try {
+	                this.checkValidationOfFrameRate(rate, true);
+	                this.fps = rate;
+	            } catch (e) {
+	                console.error(e);
+	            }
+	            return this;
+	        }
+	    }, {
+	        key: 'render',
+	        value: function render(className, func) {
+	            if (typeof className == 'function') {
+	                func = className;
+	                className = '';
+	            }
+	            var renderer = new _Renderer2.default(this, {
+	                id: this.renderers.length,
+	                class: className
+	            }, func);
+	            this.renderers.push(renderer);
+	            return renderer;
+	        }
+	    }, {
+	        key: 'requestLoop',
+	        value: function requestLoop() {
+	            requestAnimFrame(this.requestLoop.bind(this));
+	            this.frames++;
+	            var _iteratorNormalCompletion3 = true;
+	            var _didIteratorError3 = false;
+	            var _iteratorError3 = undefined;
+
+	            try {
+	                for (var _iterator3 = this.getAllRenderers()[Symbol.iterator](), _step3; !(_iteratorNormalCompletion3 = (_step3 = _iterator3.next()).done); _iteratorNormalCompletion3 = true) {
+	                    var renderer = _step3.value;
+	                    renderer.render();
+	                }
+	            } catch (err) {
+	                _didIteratorError3 = true;
+	                _iteratorError3 = err;
+	            } finally {
+	                try {
+	                    if (!_iteratorNormalCompletion3 && _iterator3.return) {
+	                        _iterator3.return();
+	                    }
+	                } finally {
+	                    if (_didIteratorError3) {
+	                        throw _iteratorError3;
+	                    }
+	                }
+	            }
+	        }
+	    }]);
+
+	    return FramesFlow;
+	}();
+
+	exports.default = FramesFlow;
+
+/***/ },
+/* 7 */
 /***/ function(module, exports) {
 
-	"use strict";
+	'use strict';
 
 	Object.defineProperty(exports, "__esModule", {
 	    value: true
@@ -449,9 +651,11 @@
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
 	var Renderer = function () {
-	    function Renderer(framesFlow, func) {
+	    function Renderer(framesFlow, options, func) {
 	        _classCallCheck(this, Renderer);
 
+	        this.id = options.id;
+	        this.class = options.class || '';
 	        this.props = {
 	            isDebuging: false
 	        };
@@ -459,18 +663,41 @@
 	        this.fps = undefined;
 	        this.func = func;
 	        this.frames = 0;
+	        this.shouldGoNext = false;
 	    }
+	    // Render next frame
+
 
 	    _createClass(Renderer, [{
-	        key: "getFPS",
+	        key: 'next',
+	        value: function next() {
+	            this.shouldGoNext = true;
+	        }
+	    }, {
+	        key: 'remove',
+	        value: function remove() {
+	            this.framesFlow.removeRendererById(this.id);
+	        }
+	    }, {
+	        key: 'pause',
+	        value: function pause() {
+	            this.props.isDebuging = true;
+	        }
+	    }, {
+	        key: 'play',
+	        value: function play() {
+	            this.props.isDebuging = false;
+	        }
+	    }, {
+	        key: 'getFPS',
 	        value: function getFPS() {
 	            return this.fps || this.framesFlow.getGlobalFPS();
 	        }
 	    }, {
-	        key: "setFPS",
+	        key: 'setFPS',
 	        value: function setFPS(rate) {
 	            try {
-	                this.framesFlow._checkValidationOfFrameRate(rate);
+	                this.framesFlow.checkValidationOfFrameRate(rate);
 	                this.fps = rate;
 	            } catch (e) {
 	                console.error(e);
@@ -478,12 +705,12 @@
 	            return this;
 	        }
 	    }, {
-	        key: "unsetFPS",
+	        key: 'unsetFPS',
 	        value: function unsetFPS() {
 	            this.fps = undefined;
 	        }
 	    }, {
-	        key: "shouldRenderThisFrame",
+	        key: 'shouldRenderThisFrame',
 	        value: function shouldRenderThisFrame() {
 	            // all conditions to pause or play rendering
 	            var conditions = [!this.props.isDebuging, this.framesFlow.frames % (30 / Math.min(this.getFPS(), 30)) == 0];
@@ -515,17 +742,20 @@
 	            return ret;
 	        }
 	    }, {
-	        key: "getFrameObjectToReturn",
+	        key: 'getFrameObjectToReturn',
 	        value: function getFrameObjectToReturn() {
 	            return {
-	                index: this.frames
+	                renderer: this,
+	                index: this.frames,
+	                fps: this.fps
 	            };
 	        }
 	    }, {
-	        key: "render",
+	        key: 'render',
 	        value: function render() {
-	            if (this.shouldRenderThisFrame()) for (var i = 0; i < Math.max(this.getFPS(), 30) / 30; i++) {
+	            if (this.shouldRenderThisFrame() || this.shouldGoNext) for (var i = 0; i < Math.max(this.getFPS(), 30) / 30; i++) {
 	                this.frames++;
+	                this.shouldGoNext = false;
 	                this.func(this.getFrameObjectToReturn());
 	            }
 	        }
@@ -535,114 +765,6 @@
 	}();
 
 	exports.default = Renderer;
-
-/***/ },
-/* 7 */
-/***/ function(module, exports, __webpack_require__) {
-
-	'use strict';
-
-	Object.defineProperty(exports, "__esModule", {
-	    value: true
-	});
-
-	var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
-
-	var _Renderer = __webpack_require__(6);
-
-	var _Renderer2 = _interopRequireDefault(_Renderer);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
-	// Compatibility for all browsers - Paul Irish version
-	window.requestAnimFrame = function () {
-	    return window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || function (callback) {
-	        window.setTimeout(callback, 1000 / 60);
-	    };
-	}();
-
-	// FramesFlow
-
-	var FramesFlow = function () {
-	    function FramesFlow() {
-	        _classCallCheck(this, FramesFlow);
-
-	        this.frames = 0;
-	        this.fps = 30;
-	        this.renderers = [];
-	        this.requestRenderFrame();
-	    }
-
-	    _createClass(FramesFlow, [{
-	        key: '_checkValidationOfFrameRate',
-	        value: function _checkValidationOfFrameRate(rate) {
-	            var isGlobalCheck = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-
-	            var error = null;
-	            var pointer = isGlobalCheck ? 'any' : 'this';
-	            if (rate < 0) error = 'FPS must not be a negative number!';else if (rate < 30 && rate > 0 && 30 / rate % 1 !== 0) error = 'if FPS is less than 30fps, it have to be like this: (30 / FPS) should be integer';else if (rate > 30 && rate % 30 !== 0) error = 'if FPS is more than 30fps, it have to be like this: (FPS % 30 == 0)';
-	            if (error !== null) throw 'can\'t set ' + rate + 'fps for this renderer. REASON: <' + error + '>';
-	        }
-	    }, {
-	        key: 'getGlobalFPS',
-	        value: function getGlobalFPS() {
-	            return this.fps;
-	        }
-	    }, {
-	        key: 'setGlobalFPS',
-	        value: function setGlobalFPS(rate) {
-	            try {
-	                this._checkValidationOfFrameRate(rate, true);
-	                this.fps = rate;
-	            } catch (e) {
-	                console.error(e);
-	            }
-	            return this;
-	        }
-	    }, {
-	        key: 'render',
-	        value: function render(func) {
-	            var renderer = new _Renderer2.default(this, func);
-	            this.renderers.push(renderer);
-	            return renderer;
-	        }
-	    }, {
-	        key: 'requestRenderFrame',
-	        value: function requestRenderFrame() {
-	            requestAnimFrame(this.requestRenderFrame.bind(this));
-	            this.frames++;
-	            var _iteratorNormalCompletion = true;
-	            var _didIteratorError = false;
-	            var _iteratorError = undefined;
-
-	            try {
-	                for (var _iterator = this.renderers[Symbol.iterator](), _step; !(_iteratorNormalCompletion = (_step = _iterator.next()).done); _iteratorNormalCompletion = true) {
-	                    var renderer = _step.value;
-	                    renderer.render();
-	                }
-	            } catch (err) {
-	                _didIteratorError = true;
-	                _iteratorError = err;
-	            } finally {
-	                try {
-	                    if (!_iteratorNormalCompletion && _iterator.return) {
-	                        _iterator.return();
-	                    }
-	                } finally {
-	                    if (_didIteratorError) {
-	                        throw _iteratorError;
-	                    }
-	                }
-	            }
-	        }
-	    }]);
-
-	    return FramesFlow;
-	}();
-
-	exports.default = FramesFlow;
 
 /***/ }
 /******/ ]);
