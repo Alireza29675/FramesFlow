@@ -1,11 +1,9 @@
 {
   "name": "framesflow",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Superpowers over \"requestAnimationFrame\"",
   "main": "src/index.js",
-  "dependencies": {
-    
-  },
+  "dependencies": {},
   "devDependencies": {
     "babel-core": "^6.14.0",
     "babel-loader": "^6.2.5",
@@ -15,8 +13,12 @@
     "style-loader": "*",
     "css-loader": "*"
   },
-  "directories": { "test": "test" },
-  "scripts": { "test": "npm test" },
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "npm test"
+  },
   "keywords": [
     "requestAnimationFrame",
     "animation",
