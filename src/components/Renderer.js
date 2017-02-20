@@ -53,7 +53,13 @@ class Renderer {
         return {
             renderer: this,
             index: this.frames,
-            fps: this.fps
+            fps: this.fps,
+            performance: {
+                fps: this.framesFlow.performance.lastFrameFPS,
+                ratio: this.framesFlow.performance.ratio,
+                status: this.framesFlow.performance.status,
+                average: this.framesFlow.performance.average
+            }
         }
     }
     render () {
