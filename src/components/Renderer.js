@@ -6,10 +6,11 @@ class Renderer {
             isDebuging: false
         }
         this.framesFlow = framesFlow
-        this.fps = undefined
+        this._fps = undefined
         this.func = func
         this.frames = 0
         this.shouldGoNext = false
+        this.render()
     }
     // Render next frame
     next () {
@@ -24,26 +25,23 @@ class Renderer {
     play () {
         this.props.isDebuging = false
     }
-    getFPS () {
-        return this.fps || this.framesFlow.getGlobalFPS()
-    }
-    setFPS (rate) {
+    set fps (newFPS) {
+        if (newFPS == undefined) return this._fps = newFPS
         try {
-            this.framesFlow.checkValidationOfFrameRate(rate)
-            this.fps = rate
+            this.framesFlow.checkValidationOfFrameRate(newFPS)
+            this._fps = newFPS
         } catch (e) {
             console.error(e)
         }
-        return this
     }
-    unsetFPS () {
-        this.fps = undefined
+    get fps () {
+        return this._fps || this.framesFlow.fps
     }
     shouldRenderThisFrame () {
         // all conditions to pause or play rendering
         const conditions = [
             !this.props.isDebuging,
-            this.framesFlow.frames % (30 / Math.min(this.getFPS(), 30)) == 0,
+            this.framesFlow.frames % (30 / Math.min(this.fps, 30)) == 0,
         ]
         let ret = true
         for (let cond of conditions) ret = ret && cond
@@ -63,10 +61,15 @@ class Renderer {
         }
     }
     render () {
-        if (this.shouldRenderThisFrame() || this.shouldGoNext) for (let i = 0; i < Math.max(this.getFPS(), 30) / 30; i++) {
-            this.frames++
-            this.shouldGoNext = false
-            this.func(this.getFrameObjectToReturn())
+        if (this.shouldRenderThisFrame() || this.shouldGoNext) {
+            let iteration = 0
+            if (this.fps > 30) iteration = (Math.max(this.fps, 30) / 30)
+            else iteration = 30 / this.fps
+            for (let i = 0; i < iteration; i++) {
+                this.frames++
+                this.shouldGoNext = false
+                this.func(this.getFrameObjectToReturn())
+            }
         }
     }
 }

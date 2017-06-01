@@ -1,3 +1,4 @@
+import RendererArray from './RendererArray'
 import Renderer from './Renderer'
 
 // Compatibility for all browsers - Paul Irish version
@@ -14,11 +15,11 @@ window.requestAnimFrame = (function () {
 class FramesFlow {
     constructor () {
         this.frames = 0
-        this.fps = 30
+        this._fps = 30
         this.options = {
             minimumAcceptableFPS: 30
         }
-        this.renderers = []
+        this.renderers = new RendererArray
         this.performance = {
             logs: new Array(100),
             logsPointer: 0,
@@ -34,11 +35,18 @@ class FramesFlow {
         }
         this.requestLoop()
     }
-    getAllRenderers () { return this.renderers.filter(renderer => renderer instanceof Renderer) }
-    get (id) { return this.getById(id) }
-    getById (id) { return this.renderers[id] }
-    getAllByClass (className) { return this.getAllRenderers().filter(renderer => renderer.class == className) }
-    removeRendererById (id) { this.renderers[id] = undefined }
+    get (id) {
+        return this.renderers.get(id)
+    }
+    getAll () {
+        return this.renderers
+    }
+    getAllByClass (className) {
+        return this.renderers.filter(renderer => renderer.class == className)
+    }
+    removeRendererById (id) {
+        this.renderers.remove(id)
+    }
     checkValidationOfFrameRate (rate, isGlobalCheck = false) {
         let error = null
         const pointer = isGlobalCheck ? 'any' : 'this'
@@ -47,23 +55,22 @@ class FramesFlow {
         else if (rate > 30 && rate % 30 !== 0) error = 'if FPS is more than 30fps, it have to be like this: (FPS % 30 == 0)'
         if (error !== null) throw `can't set ${rate}fps for this renderer. REASON: <${error}>`
     }
-    getGlobalFPS () {
-        return this.fps
+    get fps () {
+        return this._fps
+    }
+    set fps (newFPS) {
+        try {
+            this.checkValidationOfFrameRate(rate, true)
+            this._fps = newFPS
+        } catch (e) {
+            console.error(e)
+        }
     }
     playAll () {
         for (let renderer of this.getAllRenderers()) renderer.play()
     }
     pauseAll () {
         for (let renderer of this.getAllRenderers()) renderer.pause()
-    }
-    setGlobalFPS (rate) {
-        try {
-            this.checkValidationOfFrameRate(rate, true)
-            this.fps = rate
-        } catch (e) {
-            console.error(e)
-        }
-        return this
     }
     render (className, func) {
         if (typeof className == 'function') {
@@ -107,7 +114,7 @@ class FramesFlow {
         this.performance.average.status = this._getStatusOfFPS(this.performance.average.fps)
     }
     _getStatusOfFPS (fps) {
-        const ratio = fps / 30
+        const ratio = fps / this.fps
         let status = -3 // WORST
         if (ratio > 0.3) status = -2 // BAD
         if (ratio > 0.6) status = -1 // NOT BAD
@@ -120,7 +127,7 @@ class FramesFlow {
     requestLoop () {
         requestAnimFrame(this.requestLoop.bind(this))
         this.frames++
-        for (let renderer of this.getAllRenderers()) renderer.render()
+        this.renderers.each(renderer => renderer.render())
         if (this.performance.lastTimeStamp !== undefined) this.registerPerformanceLog(Date.now() - this.performance.lastTimeStamp)
         this.performance.lastTimeStamp = Date.now()
     }
