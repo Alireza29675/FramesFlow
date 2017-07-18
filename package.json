@@ -1,8 +1,8 @@
 {
   "name": "framesflow",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Superpowers over \"requestAnimationFrame\"",
-  "main": "src/index.js",
+  "main": "dist/index.js",
   "devDependencies": {
     "babel-core": "^6.14.0",
     "babel-loader": "^6.2.5",
