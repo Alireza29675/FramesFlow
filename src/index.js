@@ -1,4 +1,4 @@
-const requestAnimationFrame = require('./components/requestAnimationFrame')
+const renderManager = require('./components/renderManager')
 
 class FramesFlow {
 
@@ -7,15 +7,18 @@ class FramesFlow {
      * @constructor
      */
     constructor () {
-        this.fps = 0;   
+
     }
 
     /**
-     * renders all renderers
+     * adds a function to main renderer
+     * @param {function} renderFunction 
      */
-    render () {
-
-        requestAnimationFrame(() => this.render())
+    render (renderFunction) {
+        // if it was a function let's add it to render-manager
+        if (typeof renderFunction === 'function') {
+            renderManager.add(renderFunction);
+        }
     }
 
 }
