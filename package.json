@@ -2,7 +2,13 @@
   "name": "framesflow",
   "version": "1.0.5",
   "description": "Superpowers over \"requestAnimationFrame\"",
-  "main": "dist/index.js",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "http-server test/public",
+    "compile": "babel --presets es2015,stage-0 -d lib/ src/",
+    "compile:watch": "babel -w --presets es2015,stage-0 -d lib/ src/",
+    "prepublish": "npm run compile"
+  },
   "devDependencies": {
     "babel-core": "^6.14.0",
     "babel-loader": "^6.2.5",
@@ -13,23 +19,12 @@
     "babel-cli": "^6.24.1",
     "babel-preset-stage-0": "^6.24.1"
   },
-  "directories": {
-    "test": "test"
-  },
-  "scripts": {
-    "dev": "webpack",
-    "test": "http-server test/public",
-    "test-dev": "cd test && webpack",
-    "compile": "babel --presets es2015,stage-0 -d dist/ src/",
-    "compile-watch": "babel -w --presets es2015,stage-0 -d dist/ src/",
-    "prepublish": "npm run compile"
-  },
   "keywords": [
-    "requestAnimationFrame",
     "animation",
-    "THREE.js",
+    "transition",
     "canvas",
-    "FramesFlow"
+    "requestAnimationFrame",
+    "framesflow"
   ],
   "author": "Alireza Sheikholmolouki",
   "license": "MIT"
