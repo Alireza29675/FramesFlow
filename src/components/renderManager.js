@@ -19,7 +19,7 @@ class RenderManager {
         // rendering all renderers
         const renderers = this.renderers.filter(item => typeof item === 'function');
         for (let renderer of renderers) {
-            renderer.call();
+            renderer.call(this.frames);
         }
 
         // requesting a loop again
